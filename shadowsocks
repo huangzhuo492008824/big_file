@@ -1,0 +1,32 @@
+ubuntu安装配置shadowsock：
+一.server端：
+apt-get install python-pip
+pip install shadowsocks
+Create a config file /etc/shadowsocks.json. Example:
+
+{
+    "server":"my_server_ip",
+    "server_port":8388,
+    "local_address": "127.0.0.1",
+    "local_port":1080,
+    "password":"mypassword",
+    "timeout":300,
+    "method":"aes-256-cfb",
+    "fast_open": false
+}
+
+To run in the foreground:
+
+ssserver -c /etc/shadowsocks.json
+To run in the background:
+
+ssserver -c /etc/shadowsocks.json -d start
+ssserver -c /etc/shadowsocks.json -d stop
+
+二.客户端：
+windows下直接下载客户端；
+ubuntu下：
+sudo add-apt-repository ppa:hzwhuang/ss-qt5
+sudo apt-get update
+sudo apt-get install shadowsocks-qt5
+然后以root用户启动：sudo ss-qt5
