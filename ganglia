@@ -1,0 +1,158 @@
+ubuntu配置安装ganglia：
+1. sudo apt-get install ganglia-monitor rrdtool gmetad ganglia-webfrontend
+在安装过程中，你应该会看到类似下面的安装后与apache2服务器重启选择，直接 Yes，然后按Enter键。
+
+2.现在，你需要复制 Ganglia webfrontend Apache 配置，使用下面的命令来正确的位置：
+
+sudo cp /etc/ganglia-webfrontend/apache.conf /etc/apache2/sites-enabled/ganglia.conf
+
+现在，您需要使用以下命令来编辑 Ganglia 元守护程序的配置文件：
+
+sudo vi /etc/ganglia/gmetad.conf
+
+更改如下：
+
+data_source "my cluster" localhost
+
+sudo vi /etc/ganglia/gmond.conf
+
+做下面的变化：
+
+/* If a cluster attribute is specified, then all gmond hosts are wrapped inside
+* of a tag. If you do not specify a cluster tag, then all will
+* NOT be wrapped inside of a tag. */
+cluster {
+name = "unspecified"
+owner = "unspecified"
+latlong = "unspecified"
+url = "unspecified"
+}
+
+修改为：
+
+cluster {
+name = "my cluster"
+owner = "unspecified"
+latlong = "unspecified"
+url = "unspecified"
+}
+
+/* Feel free to specify as many udp_send_channels as you like. Gmond
+used to only support having a single channel */
+udp_send_channel {
+mcast_join = 239.2.11.71
+port = 8649
+ttl = 1
+}
+
+修改为：
+
+/* Feel free to specify as many udp_send_channels as you like. Gmond
+used to only support having a single channel */
+udp_send_channel {
+# mcast_join = 239.2.11.71
+host = 192.168.56.10
+port = 8649
+ttl = 1
+}
+
+/* You can specify as many udp_recv_channels as you like as well. */
+udp_recv_channel {
+mcast_join = 239.2.11.71
+port = 8649
+bind = 239.2.11.71
+}
+
+修改为：
+
+/* You can specify as many udp_recv_channels as you like as well. */
+udp_recv_channel {
+# mcast_join = 239.2.11.71
+port = 8649
+#bind = 239.2.11.71
+}
+
+保存并关闭文件。
+
+需要重启服务：
+
+sudo /etc/init.d/ganglia-monitor start
+sudo /etc/init.d/gmetad start
+sudo /etc/init.d/apache2 restart
+
+现在你可以使用以下命令访问gnglia webinterface：
+
+http://serverip/ganglia/
+
+、ganglia 客户端安装
+你需要安装以下所有服务器要监视客户端包
+
+sudo apt-get install ganglia-monitor
+
+6、ganglia 客户端配置
+你需要使用下面的命令编辑gmond.conf文件
+
+sudo vi /etc/ganglia/gmond.conf
+
+修改内容如下：
+/* If a cluster attribute is specified, then all gmond hosts are wrapped inside
+* of a tag. If you do not specify a cluster tag, then all will
+* NOT be wrapped inside of a tag. */
+cluster {
+name = "unspecified"
+owner = "unspecified"
+latlong = "unspecified"
+url = "unspecified"
+}
+
+修改为：
+
+cluster {
+name = "my cluster"
+owner = "unspecified"
+latlong = "unspecified"
+url = "unspecified"
+}
+
+/* Feel free to specify as many udp_send_channels as you like. Gmond
+used to only support having a single channel */
+udp_send_channel {
+mcast_join = 239.2.11.71
+port = 8649
+ttl = 1
+}
+
+修改为：
+
+/* Feel free to specify as many udp_send_channels as you like. Gmond
+used to only support having a single channel */
+udp_send_channel {
+# mcast_join = 239.2.11.71
+host = ganglia服务器端IP
+port = 8649
+ttl = 1
+}
+
+/* You can specify as many udp_recv_channels as you like as well. */
+udp_recv_channel {
+mcast_join = 239.2.11.71
+port = 8649
+bind = 239.2.11.71
+}
+
+修改为：
+
+/* You can specify as many udp_recv_channels as you like as well. */
+#udp_recv_channel {
+# mcast_join = 239.2.11.71
+# port = 8649
+#bind = 239.2.11.71
+#}
+
+保存并退出。
+
+重启 ganglia monitor 服务
+
+sudo /etc/init.d/ganglia-monitor restart
+
+OK，搞定！
