@@ -1,0 +1,5 @@
+ubuntu添加开机启动项：
+vim /etc/init.d/rc.local
+添加：
+python /usr/local/src/get_ip.py
+exit 0
